@@ -2,61 +2,131 @@
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
-    <title>Турнірна таблиця</title>
+    <title>Live Leaderboard: Чорна Рада</title>
     <style>
-        body { font-family: Arial, sans-serif; background: #f4f4f9; padding: 20px; }
-        .leaderboard { max-width: 600px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-        .player { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #ddd; font-size: 18px; }
-        .player:nth-child(1) { font-weight: bold; color: #d4af37; font-size: 22px; } /* Золото для лідера */
+        body { 
+            font-family: 'Segoe UI', sans-serif; 
+            background: #0f172a; 
+            color: #f8fafc; 
+            margin: 0; 
+            padding: 40px; 
+        }
+        .container { 
+            max-width: 900px; 
+            margin: 0 auto; 
+            background: rgba(30, 41, 59, 0.7); 
+            backdrop-filter: blur(10px);
+            border-radius: 20px; 
+            padding: 30px; 
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        h2 { text-align: center; color: #38bdf8; text-transform: uppercase; letter-spacing: 2px; }
+        
+        .header-row { display: flex; padding: 10px 20px; font-weight: bold; color: #94a3b8; border-bottom: 1px solid #334155; }
+        .col-rank { width: 50px; }
+        .col-name { flex-grow: 1; }
+        .col-score { width: 100px; text-align: center; }
+        .col-streak { width: 120px; text-align: center; }
+
+        #leaderboard { margin-top: 10px; }
+
+        .user-card { 
+            display: flex; 
+            align-items: center; 
+            padding: 15px 20px; 
+            margin-bottom: 10px; 
+            background: #1e293b; 
+            border-radius: 12px; 
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            border-left: 4px solid transparent;
+        }
+
+        .rank-1 { border-left-color: #fbbf24; background: linear-gradient(90deg, rgba(251, 191, 36, 0.1), #1e293b); }
+        .rank-2 { border-left-color: #94a3b8; }
+        .rank-3 { border-left-color: #b45309; }
+
+        .score-val { font-size: 1.4em; font-weight: bold; color: #38bdf8; }
+        
+        .streak-fire { color: #f59e0b; font-weight: bold; animation: flicker 1s infinite alternate; }
+        @keyframes flicker { 
+            from { text-shadow: 0 0 5px #f59e0b; } 
+            to { text-shadow: 0 0 15px #ef4444; } 
+        }
+
+        .progress-container { width: 100%; background: #334155; height: 6px; border-radius: 3px; margin-top: 8px; overflow: hidden; }
+        .progress-bar { height: 100%; background: #38bdf8; transition: width 0.4s ease; }
+        
+        .status-tag { font-size: 0.7em; padding: 2px 6px; border-radius: 4px; margin-left: 10px; text-transform: uppercase; }
+        .status-online { background: #059669; color: white; animation: pulse 2s infinite; }
+        .status-done { background: #475569; color: #cbd5e1; }
+
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.6; } 100% { opacity: 1; } }
     </style>
 </head>
 <body>
 
-    <div class="leaderboard">
-        <h2>Результати в реальному часі</h2>
-        <div id="players-list">Очікування гравців...</div>
+<div class="container">
+    <h2>🏆 Турнірна Таблиця</h2>
+    <div class="header-row">
+        <div class="col-rank">#</div>
+        <div class="col-name">Гравець</div>
+        <div class="col-streak">Стрік 🔥</div>
+        <div class="col-score">Бали</div>
     </div>
+    <div id="leaderboard"></div>
+</div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+    import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
 
-        // ВСТАВ ТОЙ САМИЙ ФАЙРБЕЙЗ КОНФІГ СЮДИ
-        const firebaseConfig = {
-            apiKey: "ТВІЙ_API_KEY",
-            authDomain: "ТВІЙ_ПРОЄКТ.firebaseapp.com",
-            databaseURL: "https://ТВІЙ_ПРОЄКТ-default-rtdb.europe-west1.firebasedatabase.app",
-            projectId: "ТВІЙ_ПРОЄКТ",
-            storageBucket: "ТВІЙ_ПРОЄКТ.appspot.com",
-            messagingSenderId: "ТВІЙ_ID",
-            appId: "ТВІЙ_APP_ID"
-        };
+    const firebaseConfig = {
+        apiKey: "AIzaSyB7RvEg9vfp4Lo607QEBk4UmS_Y3bZ0KxA",
+        authDomain: "for-literatyra.firebaseapp.com",
+        projectId: "for-literatyra",
+        storageBucket: "for-literatyra.firebasestorage.app",
+        messagingSenderId: "397284064199",
+        appId: "1:397284064199:web:1e89197505edc29b7cf7e2",
+        measurementId: "G-82KMRRFKRB",
+        databaseURL: "ВСТАВ_СЮДИ_СВІЙ_URL" 
+    };
 
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
 
-        // onValue спрацьовує щоразу, коли хтось натискає радіокнопку в тесті
-        onValue(ref(db, 'users'), (snapshot) => {
-            const listDiv = document.getElementById('players-list');
-            listDiv.innerHTML = '';
-            const users = [];
+    onValue(ref(db, 'results'), (snapshot) => {
+        const board = document.getElementById('leaderboard');
+        let players = [];
 
-            snapshot.forEach((childSnapshot) => {
-                users.push(childSnapshot.val());
-            });
-
-            // Сортуємо гравців від найбільшого бала до найменшого
-            users.sort((a, b) => b.score - a.score);
-
-            users.forEach(user => {
-                const div = document.createElement('div');
-                div.className = 'player';
-                // Показуємо статус (Грає / Завершив)
-                const status = user.played ? "(Завершив)" : "⏳";
-                div.innerHTML = `<span>${user.name} ${status}</span> <span>${user.score} балів</span>`;
-                listDiv.appendChild(div);
-            });
+        snapshot.forEach(child => {
+            let data = child.val();
+            data.streak = data.score >= 3 ? data.score : 0; 
+            players.push(data);
         });
-    </script>
+
+        players.sort((a, b) => b.score - a.score);
+
+        board.innerHTML = '';
+        players.forEach((p, index) => {
+            const rank = index + 1;
+            const progress = (p.score / 6) * 100;
+            const streakHtml = p.streak > 0 ? `<span class="streak-fire">🔥 ${p.streak}</span>` : `<span style="opacity:0.3">0</span>`;
+            const statusLabel = p.finished ? '<span class="status-tag status-done">Фініш</span>' : '<span class="status-tag status-online">Грає</span>';
+
+            const card = document.createElement('div');
+            card.className = `user-card rank-${rank <= 3 ? rank : 'other'}`;
+            card.innerHTML = `
+                <div class="col-rank">${rank}</div>
+                <div class="col-name">
+                    <div><strong>${p.name}</strong> ${statusLabel}</div>
+                    <div class="progress-container"><div class="progress-bar" style="width: ${progress}%"></div></div>
+                </div>
+                <div class="col-streak">${streakHtml}</div>
+                <div class="col-score"><span class="score-val">${p.score}</span></div>
+            `;
+            board.appendChild(card);
+        });
+    });
+</script>
 </body>
 </html>
