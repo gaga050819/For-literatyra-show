@@ -66,11 +66,10 @@
 <body>
 
 <div class="container">
-    <h2>🏆 Турнірна Таблиця</h2>
+    <h2>Таблиця балів</h2>
     <div class="header-row">
         <div class="col-rank">#</div>
         <div class="col-name">Гравець</div>
-        <div class="col-streak">Стрік 🔥</div>
         <div class="col-score">Бали</div>
     </div>
     <div id="leaderboard"></div>
@@ -110,7 +109,6 @@
         players.forEach((p, index) => {
             const rank = index + 1;
             const progress = (p.score / 6) * 100;
-            const streakHtml = p.streak > 0 ? `<span class="streak-fire">🔥 ${p.streak}</span>` : `<span style="opacity:0.3">0</span>`;
             const statusLabel = p.finished ? '<span class="status-tag status-done">Фініш</span>' : '<span class="status-tag status-online">Грає</span>';
 
             const card = document.createElement('div');
